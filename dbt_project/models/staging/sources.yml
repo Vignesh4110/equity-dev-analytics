@@ -1,0 +1,31 @@
+# sources.yml
+# Tells dbt where the raw source data lives in DuckDB.
+# This is the raw_combined table we loaded from Parquet.
+
+version: 2
+
+sources:
+  - name: raw
+    database: warehouse
+    schema: main
+    tables:
+      - name: raw_combined
+        description: >
+          Combined raw table loaded from processed Parquet files.
+          Contains stock prices, Polygon trade data, and GitHub
+          activity joined on ticker and date.
+        columns:
+          - name: ticker
+            description: Stock ticker symbol e.g. MSFT
+          - name: date
+            description: Trading date
+          - name: close_price
+            description: Closing stock price from Alpha Vantage
+          - name: daily_return_pct
+            description: Daily return percentage calculated in Spark
+          - name: vwap
+            description: Volume weighted average price from Polygon
+          - name: total_commits_today
+            description: Total GitHub commits across tracked repos
+          - name: total_open_prs
+            description: Total open pull requests across tracked repos

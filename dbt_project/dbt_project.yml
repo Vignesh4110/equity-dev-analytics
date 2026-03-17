@@ -1,0 +1,33 @@
+# dbt_project.yml
+# Main configuration file for our dbt project.
+# Defines project name, model paths, and how models are materialized.
+
+name: equity_dev_analytics
+version: "1.0.0"
+config-version: 2
+
+# Must match the profile name in profiles.yml
+profile: equity_dev_analytics
+
+# Where dbt looks for models, tests, macros
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+# Where dbt writes compiled SQL and results
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# How models are materialized by default
+# view = just a SQL view (fast, no storage)
+# table = actually writes data to a table (slower, better for marts)
+models:
+  equity_dev_analytics:
+    staging:
+      materialized: view      # Staging models are views — lightweight
+    intermediate:
+      materialized: view      # Intermediate models are views too
+    marts:
+      materialized: table     # Mart models are tables — queried by Tableau

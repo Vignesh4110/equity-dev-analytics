@@ -1,0 +1,12 @@
+# profiles.yml
+# Tells dbt how to connect to our warehouse.
+# During development we connect to DuckDB locally.
+# When we switch to Snowflake, we just add a new profile here.
+
+equity_dev_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', '../data/warehouse.duckdb') }}"
+      threads: 4

@@ -1,0 +1,51 @@
+# Environment
+.env
+*.env
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Conda / venv
+.venv/
+env/
+venv/
+
+# Data files
+data/raw/*
+data/processed/*
+*.parquet
+*.csv
+*.json
+
+# dbt
+dbt_project/target/
+dbt_project/dbt_packages/
+dbt_project/logs/
+
+# Airflow
+logs/
+airflow/logs/
+airflow.cfg
+airflow.db
+standalone_admin_password.txt
+
+# AWS
+*.pem
+*.key
+.aws/
+
+# Terraform
+infrastructure/terraform/.terraform/
+infrastructure/terraform/*.tfstate
+infrastructure/terraform/*.tfstate.backup
+infrastructure/terraform/.terraform.lock.hcl
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Pytest
+.pytest_cache/

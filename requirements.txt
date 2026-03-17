@@ -1,0 +1,27 @@
+# Ingestion
+requests==2.31.0
+boto3==1.34.0
+tenacity==8.2.3
+python-dotenv==1.0.0
+
+# PySpark
+pyspark==3.5.0
+
+# dbt
+dbt-core==1.7.0
+dbt-duckdb==1.7.0
+
+# DuckDB
+duckdb==0.10.0
+
+# Data Quality
+great-expectations==0.18.0
+
+# Airflow (installed separately - see below)
+
+# Testing
+pytest==7.4.0
+
+# Utilities
+pandas==2.1.0
+pyarrow==14.0.0

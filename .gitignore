@@ -49,3 +49,18 @@ infrastructure/terraform/.terraform.lock.hcl
 
 # Pytest
 .pytest_cache/
+
+# DuckDB
+data/warehouse.duckdb
+data/warehouse.duckdb.wal
+*.duckdb
+*.duckdb.wal
+
+# Spark temp files
+derby.log
+metastore_db/
+
+# dbt compiled output
+dbt_project/target/
+dbt_project/dbt_packages/
+dbt_project/logs/

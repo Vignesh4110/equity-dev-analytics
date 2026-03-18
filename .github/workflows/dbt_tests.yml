@@ -1,0 +1,107 @@
+# dbt_tests.yml
+# GitHub Actions workflow that runs dbt tests automatically
+# every time code is pushed to main or a pull request is opened.
+#
+# This is CI/CD for data — the same principle as software CI/CD
+# but applied to data models and transformations.
+#
+# What this does:
+# 1. Spins up a Ubuntu runner
+# 2. Installs Python and dbt
+# 3. Creates a test DuckDB database with sample data
+# 4. Runs dbt models and tests against it
+# 5. Reports pass/fail back to GitHub
+
+name: dbt CI Tests
+
+# Trigger on pushes to main and on pull requests
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  dbt-tests:
+    name: Run dbt Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1 — Check out the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2 — Set up Python 3.10
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      # Step 3 — Install dbt and DuckDB
+      - name: Install dbt and dependencies
+        run: |
+          pip install dbt-core==1.7.0 dbt-duckdb==1.7.0 duckdb==0.10.0
+      
+      # Step 3b — Create data directory
+      - name: Create data directory
+        run: mkdir -p data
+
+      # Step 4 — Create a test DuckDB database with sample data
+      # We can't hit real APIs in CI, so we create a small
+      # synthetic dataset that mirrors our real schema
+      - name: Create test database
+        run: |
+          python -c "
+          import duckdb
+          conn = duckdb.connect('data/warehouse.duckdb')
+
+          # Create raw_combined table with same schema as production
+          # but with a small sample of synthetic data
+          conn.execute('''
+              CREATE OR REPLACE TABLE raw_combined AS
+              SELECT * FROM (VALUES
+                  (DATE '2026-03-10', 399.0, 400.0, 398.0, 399.5, 1000000,
+                   0.5, 399.8, 400.1, 398.5, 399.6, 1100000.0, 500000, 399.7,
+                   3, 5, 100, 50, 10, TIMESTAMP '2026-03-10 18:00:00', 'MSFT'),
+                  (DATE '2026-03-11', 400.0, 402.0, 399.0, 401.0, 1100000,
+                   0.37, 400.5, 402.1, 399.5, 401.1, 1200000.0, 550000, 400.8,
+                   5, 8, 102, 51, 10, TIMESTAMP '2026-03-11 18:00:00', 'MSFT'),
+                  (DATE '2026-03-10', 280.0, 282.0, 279.0, 281.0, 900000,
+                   0.7, 280.5, 282.1, 279.5, 281.1, 950000.0, 450000, 280.8,
+                   2, 4, 80, 40, 3, TIMESTAMP '2026-03-10 18:00:00', 'GOOGL'),
+                  (DATE '2026-03-11', 281.0, 283.0, 280.0, 282.0, 950000,
+                   0.35, 281.5, 283.1, 280.5, 282.1, 1000000.0, 480000, 281.8,
+                   4, 6, 82, 41, 3, TIMESTAMP '2026-03-11 18:00:00', 'GOOGL')
+              ) AS t(
+                  date, open_price, high_price, low_price, close_price, volume,
+                  daily_return_pct, poly_open, poly_high, poly_low, poly_close,
+                  poly_volume, transactions, vwap,
+                  total_commits_today, total_open_prs, total_stars,
+                  total_forks, repos_tracked, processed_at, ticker
+              )
+          ''')
+
+          count = conn.execute('SELECT COUNT(*) FROM raw_combined').fetchone()[0]
+          print(f'Test database created with {count} rows')
+          conn.close()
+          "
+
+      # Step 5 — Run dbt models
+      - name: Run dbt models
+        working-directory: dbt_project
+        run: |
+          dbt run --profiles-dir .
+
+      # Step 6 — Run dbt tests
+      - name: Run dbt tests
+        working-directory: dbt_project
+        run: |
+          dbt test --profiles-dir .
+
+      # Step 7 — Generate dbt docs (optional but looks great)
+      - name: Generate dbt docs
+        working-directory: dbt_project
+        run: |
+          dbt docs generate --profiles-dir .

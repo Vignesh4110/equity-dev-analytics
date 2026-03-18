@@ -1,0 +1,37 @@
+# Dockerfile.airflow
+# Custom Airflow image with all our project dependencies installed.
+# Extends the official Airflow 2.8.0 image and adds:
+#   - dbt-core + dbt-duckdb
+#   - pyspark
+#   - all our ingestion dependencies
+
+FROM apache/airflow:2.8.0-python3.10
+
+# Switch to root to install system dependencies
+USER root
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    default-jdk \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set Java home for ARM64 Mac
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-arm64
+
+# Switch back to airflow user for pip installs
+USER airflow
+
+# Install all Python dependencies
+RUN pip install --no-cache-dir \
+    dbt-core==1.7.0 \
+    dbt-duckdb==1.7.0 \
+    duckdb==0.10.0 \
+    pyspark==3.5.0 \
+    requests==2.31.0 \
+    boto3==1.34.0 \
+    tenacity==8.2.3 \
+    python-dotenv==1.0.0 \
+    pyarrow==14.0.0 \
+    pandas==2.1.0 \
+    great-expectations==0.18.0

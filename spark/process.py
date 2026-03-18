@@ -16,8 +16,16 @@ import os
 
 # Fix: tell Spark which Python to use so it matches our conda environment
 # Without this, Spark workers pick up system Python instead of our venv
-os.environ["PYSPARK_PYTHON"] = "/opt/miniconda3/envs/de-pipeline/bin/python"
-os.environ["PYSPARK_DRIVER_PYTHON"] = "/opt/miniconda3/envs/de-pipeline/bin/python"
+# os.environ["PYSPARK_PYTHON"] = "/opt/miniconda3/envs/de-pipeline/bin/python"
+# os.environ["PYSPARK_DRIVER_PYTHON"] = "/opt/miniconda3/envs/de-pipeline/bin/python"
+
+import shutil
+
+# Find Python dynamically — works both locally and inside Docker
+# locally it finds the conda env Python, in Docker it finds /usr/local/bin/python
+python_path = shutil.which("python") or shutil.which("python3")
+os.environ["PYSPARK_PYTHON"] = python_path
+os.environ["PYSPARK_DRIVER_PYTHON"] = python_path
 
 
 import logging

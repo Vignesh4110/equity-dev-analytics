@@ -42,7 +42,7 @@ jobs:
       # Step 3 — Install dbt and DuckDB
       - name: Install dbt and dependencies
         run: |
-          pip install dbt-core==1.7.0 dbt-duckdb==1.7.0 duckdb==0.10.0
+          pip install dbt-core==1.7.0 dbt-duckdb==1.7.0 duckdb==0.10.0 protobuf==4.25.1
       
       # Step 3b — Create data directory
       - name: Create data directory

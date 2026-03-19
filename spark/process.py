@@ -327,8 +327,14 @@ def join_all_sources(stocks_df, polygon_df, github_df):
         F.current_timestamp()
     )
 
+    # Deduplicate — keep one row per ticker+date combination
+    # This handles cases where the same date appears in multiple raw files
+    combined_df = combined_df.dropDuplicates(["ticker", "date"])
+
     # Sort by ticker and date for readability
     combined_df = combined_df.orderBy("ticker", "date")
+
+ 
 
     logger.info(
         f"Join complete — "
